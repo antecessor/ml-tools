@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+"""
+#example:
+    conv file1.x  file2.y
+    conv --formats
+"""
+
+import os
+import subprocess
+import sys
+
+list_of_supported_audio = ["mp3","wma","wave","aiff"]
+list_of_supported_video = ["mp4","avi","mov","flv","mpeg"]
+list_of_supported_images = ["jpg","png","gif","bmp","tiff"]
+
+def interprete_command(input_file, output_file):
+    input_format = input_file.split(".")[-1]
+    output_format = output_file.split(".")[-1]
+    print(f"{input_format} --> {output_format}")
+    command = None
+    if input_format in list_of_supported_audio:
+        if output_format in list_of_supported_audio:
+            # convert audio to audio
+            command = "ffmpeg -i {} {}".format(input_file, output_file)
+
+    if input_format in list_of_supported_video:
+        if output_format in list_of_supported_audio:
+            # convert video to audio
+            command = f"ffmpeg -i {input_file} -ab 320k -f {output_format} -vn {output_file}"
+ 
+        if output_format in list_of_supported_images:
+            # convert video to images
+            os.mkdir(output_file.split('.')[0])
+            command = f"ffmpeg -i {input_file} ./{output_file.split('.')[0]}/image_%d.{output_format}"
+            
+        if output_format in list_of_supported_video:
+            # convert video to video
+            command = "ffmpeg -i {} {}".format(input_file, output_file)
+
+    print("command: ", command)
+    return command
+        
+def print_supported_format():
+    print("Supported audio formats: ", list_of_supported_audio)
+    print("Supported video formats: ", list_of_supported_video)
+    print("Supported images formats: ", list_of_supported_images)
+
+if __name__ == '__main__':
+    sys.argv.pop(0)
+    input_file = sys.argv[0]
+    if input_file == "--formats":
+        print_supported_format()
+        sys.exit(0)
+        
+    output_file = sys.argv[1]
+    command = interprete_command(input_file, output_file)
+    if command is None:
+        print("Unsupported format")
+        sys.exit(1)
+    try:
+        subprocess.run(command, shell=True, check=True)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+    
