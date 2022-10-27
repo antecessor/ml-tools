@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+
+"""
+# example:
+    alert commnad: alert cp . ./test
+"""
+
+import subprocess
+import sys
+
+if __name__ == '__main__':
+    sys.argv.pop(0)
+    command = ' '.join(sys.argv)
+    
+    try:
+        subprocess.run(command, shell=True, check=True)
+        subprocess.run("paplay /usr/share/sounds/freedesktop/stereo/complete.oga", shell=True)
+    except Exception as e:
+        print(e)
+        subprocess.run("paplay /usr/share/sounds/freedesktop/stereo/suspend-error.oga", shell=True)
+        sys.exit(1)
+        
+    
