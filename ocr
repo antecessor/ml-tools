@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+"""
+sudo apt install tesseract-ocr
+sudo apt install libtesseract-dev
+
+#example:
+    ocr file.png --type type --output output_ocr.txt
+    type: word, all
+"""
+import argparse
+import sys
+import pandas as pd
+import pytesseract
+from pytesseract import Output
+import cv2
+from pdf2image import convert_from_path
+import numpy as np
+
+supported_image_types = ['png', 'jpg', 'jpeg', 'bmp', 'tif', 'tiff']
+
+def save_ocr_results_from_image(img, args):
+    try:
+        dict_data = pytesseract.image_to_data(img, output_type=Output.DICT, lang=args.lang, config='--psm {}'.format(psm))
+        pd.DataFrame(dict_data).to_csv(f"{args.output}.csv", index=False)
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+                    prog = 'ocr',
+                    description = 'Apply OCR on image/pdf')
+    parser.add_argument('--input','-i', help='file to apply OCR')
+    parser.add_argument('--type', help='type of OCR: word, all', default='all')
+    parser.add_argument('--lang', help='language of OCR', default='eng')
+    parser.add_argument('--output','-o', help='output file', default='output_ocr')
+  
+    args = parser.parse_args()
+    psm = None
+    if args.type == 'word':
+        psm = 12
+    elif args.type == 'all':
+        psm = 6
+    if psm is None:
+        sys.exit(1)
+    args.psm = psm
+    imgs = []
+    if args.input.split('.')[-1] == 'pdf':
+        pil_images = convert_from_path(args.input)
+        for img in pil_images:
+            img = cv2.cvtColor(np.array(pil_images[0]), cv2.COLOR_RGB2BGR)
+            imgs.append(img)
+    elif args.input.split('.')[-1] in supported_image_types:
+        imgs = [cv2.imread(args.input)]
+        
+    for img in imgs:
+        save_ocr_results_from_image(img, args)
+        
+    
