@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+
+"""
+example:
+    diffdir dir1 dir2
+    
+    unique files dir1:
+        file1
+        file2
+        ...
+    unique files dir2:
+        file1
+        file2
+        ...
+    shared files:
+        file1
+        file2
+        ...
+        
+"""
+
+
+import os
+import sys
+
+
+def print_files(files):
+    for f in files:
+        print(f)
+
+if __name__ == '__main__':
+    sys.argv.pop(0)
+    input_dir1 = sys.argv[0]
+    input_dir2 = sys.argv[1]
+    
+    param = None # --1 : unique files dir1, --2 : unique files dir2, --s : shared files
+    try:
+        param = sys.argv[2]
+    except:
+        pass
+    
+    if input_dir1.split('/')[-1] == input_dir2.split('/')[-1]:
+        print("Directories have the same name")
+        sys.exit(1)
+    if str(input_dir1).__contains__(".") or str(input_dir2).__contains__("."):
+        print("argument is not a directory")
+        sys.exit(1)
+    
+    files1 = set(os.listdir(input_dir1))
+    files2 = set(os.listdir(input_dir2))
+    
+    if param is None or param == "--1":
+        if param is None:
+            print("-----------------------------")
+            print("unique files dir1:")
+        print_files (files1 - files2)
+    
+
+    if param is None or param == "--2":
+        if param is None:
+            print("-----------------------------")
+            print("unique files dir2:")
+        print_files(files2 - files1)
+    
+        
+    
+    if param is None or param == "--s":
+        if param is None:
+            print("-----------------------------")
+            print("shared files:")
+        print_files(list(files1 & files2))
+    
+    
