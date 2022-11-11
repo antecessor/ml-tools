@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 list_of_supported_audio = ["mp3","wma","wave","aiff"]
-list_of_supported_video = ["mp4","avi","mov","flv","mpeg"]
+list_of_supported_video = ["mp4","avi","mov","flv","mpeg","mkv"]
 list_of_supported_images = ["jpg","png","gif","bmp","tiff"]
 
 def interprete_command(input_file, output_file):
